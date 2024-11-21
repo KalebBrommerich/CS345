@@ -1,5 +1,14 @@
 <resources>
-    <string name="app_name">InClassDrawer</string>
+    <string name="app_name">BlackJack</string>
     <string name="navOpen">Nav open</string>
     <string name="navClose">Nav close</string>
+    <string name="newGame">New Game</string>
+
+    <string name="howToPlayHeader">How to Play BlackJack</string>
+    <string name="bettingHelpText">Rules of Betting in Blackjack:\n\n
+                1. Player must bet before they receive their cards.\n
+        		2. Player must bet above 10 chips and below 50,000 chips.\n
+                3. If the player doubles down the bet for that hand is doubled.\n
+        		4. If the player has blackjack, they receive a payout of 3:2 on their original bet.\n
+                5. If the player wins, they receive a payout of 1:1 on their original bet.\n </string>
 </resources>
