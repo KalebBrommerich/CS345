@@ -3,14 +3,17 @@
     <!-- probably put hardcoded strings in strings.xml-->
     <item
         android:id="@+id/home"
-        android:title="Home"/>
+        android:title="@string/homeMenuItem"/>
     <item
         android:id="@+id/game"
-        android:title="Game"/>
+        android:title="@string/gameMenuItem"/>
     <item
         android:id="@+id/settings"
-        android:title="Settings"/>
+        android:title="@string/settingsMenuItem"/>
     <item
         android:id="@+id/howtoplay"
-        android:title="How to Play"/>
+        android:title="@string/howToPlayMenuItem"/>
+    <item
+        android:id="@+id/addMoreChips"
+        android:title="@string/addMoreChipsMenuItem"/>
 </menu>
