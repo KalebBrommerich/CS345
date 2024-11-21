@@ -18,7 +18,9 @@ import com.google.android.material.navigation.NavigationView
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener  {
     lateinit var drawerLayout: DrawerLayout
     lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
@@ -73,5 +75,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun createNewGame(v: View){
         //TODO: when pressed takes you to the game.xml and starts a new game
         
+        Toast.makeText(this, "new game", Toast.LENGTH_SHORT).show()
+    }
+    fun hit(v: View){
+        Toast.makeText(this, "hit", Toast.LENGTH_SHORT).show()
+    }
+    fun stand(v: View){
+        Toast.makeText(this, "stand", Toast.LENGTH_SHORT).show()
+    }
+    fun doubleDown(v: View){
+        Toast.makeText(this, "double down", Toast.LENGTH_SHORT).show()
+    }
+    fun casinoModeToggled(v: View){
+        Toast.makeText(this, "casino mode toggle", Toast.LENGTH_SHORT).show()
+    }
+    fun textSizeUpdated(v: View){
+        Toast.makeText(this, "text size updated", Toast.LENGTH_SHORT).show()
     }
 }
