@@ -25,7 +25,7 @@
         android:layout_marginStart="28dp"
         android:layout_marginTop="68dp"
         android:onClick="hit"
-        android:text="@string/stand"
+        android:text="@string/hit"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/newGameAfterGameBtn" />
 
@@ -52,5 +52,25 @@
         android:text="@string/doubleDown"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/newGameAfterGameBtn" />
+
+    <LinearLayout
+        android:id="@+id/playerCards"
+        android:layout_width="400dp"
+        android:layout_height="223dp"
+        android:orientation="horizontal"
+        android:layout_margin="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/dealerCards"
+        android:layout_width="400dp"
+        android:layout_height="223dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
