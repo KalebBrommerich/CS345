@@ -1,5 +1,6 @@
 package com.example.cs345finalproject
 
+import android.content.Context
 import android.content.Intent
 import android.media.Image
 import android.net.Uri
@@ -114,8 +115,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Toast.makeText(this, "text size updated", Toast.LENGTH_SHORT).show()
     }
     private fun addCardToView(addToPlayer: Boolean){
-        val card = getCard()
-        //Log.i("info", card.toString())
+        val newCard = getCard()
+        //Log.i("info", newCard.getImageResource(this).toString())
         lateinit var cards:LinearLayout
         val image = ImageView(this)
         image.adjustViewBounds = true
@@ -123,7 +124,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if(addToPlayer) {
             cards = findViewById<LinearLayout>(R.id.playerCards)
             //TODO make a method to determine what card?
-            image.setImageResource(R.drawable.ace_of_clubs)
+            image.setImageResource(newCard.getImageResource(this))
         }
         else {
             cards = findViewById<LinearLayout>(R.id.dealerCards)
@@ -131,7 +132,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 image.setImageResource(R.drawable.back)
             }else{
                 //TODO make a method to determine what card?
-                image.setImageResource(R.drawable.ace_of_clubs)
+                image.setImageResource(newCard.getImageResource(this))
             }
         }
         cards.addView(image)
@@ -143,7 +144,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun createDeck(): MutableList<Card> {
         val suits = listOf("Hearts", "Diamonds", "Clubs", "Spades")
-        val ranks = listOf("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")
+        val ranks = listOf("two", "three", "four", "five", "six", "seven", "eight", "nine",
+                            "ten", "Jack", "Queen", "King", "Ace")
 
         return suits.flatMap { suit ->
             ranks.map { rank ->
