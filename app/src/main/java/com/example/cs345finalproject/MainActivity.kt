@@ -4,6 +4,7 @@ import android.content.Intent
 import android.media.Image
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var drawerLayout: DrawerLayout
     lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
+    lateinit var deck: MutableList<Card>
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -86,6 +88,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //TODO: when pressed takes you to the game.xml and starts a new game
         Toast.makeText(this, "new game", Toast.LENGTH_SHORT).show()
         supportFragmentManager.beginTransaction().replace(R.id.framelayout,Game()).commitNow()
+        deck = createDeck()
+
         //cards exist in the layout, need to refresh somehow?
         repeat(2){
             addCardToView(true)
@@ -133,6 +137,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             (card as ImageView).layoutParams.width =
                 cards.width / (if (cards.childCount == 0) 1 else cards.childCount)
         }
+    }
 
+    private fun createDeck(): MutableList<Card> {
+        val suits = listOf("Hearts", "Diamonds", "Clubs", "Spades")
+        val ranks = listOf("2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace")
+
+        return suits.flatMap { suit ->
+            ranks.map { rank ->
+                Card(rank, suit) // Assuming `Card` is a data class with rank and suit
+            }
+        }.shuffled().toMutableList()
     }
 }

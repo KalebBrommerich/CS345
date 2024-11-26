@@ -1,6 +1,6 @@
 package com.example.cs345finalproject
 
-internal class Card(var value: String, var type: String) {
+class Card(var value: String, var type: String) {
 
     override fun toString(): String {
         return "$value of $type"
