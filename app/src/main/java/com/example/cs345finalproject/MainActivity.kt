@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -107,6 +108,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
     fun doubleDown(v: View){
         Toast.makeText(this, "double down", Toast.LENGTH_SHORT).show()
+        addCardToView(true)
+
+        val hitButton = findViewById<Button>(R.id.hitBtn)
+        hitButton.isEnabled = false
+
+        val doubleDownButton = findViewById<Button>(R.id.doubleDownBtn)
+        doubleDownButton.isEnabled = false
     }
     fun casinoModeToggled(v: View){
         Toast.makeText(this, "casino mode toggle", Toast.LENGTH_SHORT).show()
@@ -149,7 +157,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         return suits.flatMap { suit ->
             ranks.map { rank ->
-                Card(rank, suit) // Assuming `Card` is a data class with rank and suit
+                Card(rank, suit)
             }
         }.shuffled().toMutableList()
     }
