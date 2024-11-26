@@ -114,6 +114,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Toast.makeText(this, "text size updated", Toast.LENGTH_SHORT).show()
     }
     private fun addCardToView(addToPlayer: Boolean){
+        val card = getCard()
+        //Log.i("info", card.toString())
         lateinit var cards:LinearLayout
         val image = ImageView(this)
         image.adjustViewBounds = true
@@ -148,5 +150,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 Card(rank, suit) // Assuming `Card` is a data class with rank and suit
             }
         }.shuffled().toMutableList()
+    }
+
+    private fun getCard():Card {
+        return deck.removeFirst()
     }
 }
