@@ -28,7 +28,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var drawerLayout: DrawerLayout
     lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
-    lateinit var deck: MutableList<Card>
+    private lateinit var deck: MutableList<Card>
+    private lateinit var playerHand: MutableList<Card>
+    private lateinit var dealerHand: MutableList<Card>
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -89,26 +92,48 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun createNewGame(v: View){
         //TODO: when pressed takes you to the game.xml and starts a new game
         Toast.makeText(this, "new game", Toast.LENGTH_SHORT).show()
-        supportFragmentManager.beginTransaction().replace(R.id.framelayout,Game()).commitNow()
+        Log.i("INFO", "making fragment")
+
+        supportFragmentManager.beginTransaction().replace(R.id.framelayout, Game()).commitNow()
+
+        //create the shuffled deck
+        Log.i("INFO", "making deck")
         deck = createDeck()
 
-        //cards exist in the layout, need to refresh somehow?
-        repeat(2){
-            addCardToView(true)
-            addCardToView(false)
+        //initialize the hands of the user and dealer
+        Log.i("INFO", "making hands")
+        playerHand = initializeHand()
+        dealerHand = initializeHand()
+
+        for (card in playerHand) {
+            Log.i("INFO", card.toString())
+            //below just doesn't work some how only when its uncommented
+            //addCardToView(true, card) //add players cards to the view
         }
 
+        //TODO: make it so the first dealer card shows the back
+        for (card in dealerHand) {
+            Log.i("INFO", card.toString())
+            //below just doesn't work some how only when its uncommented
+            //addCardToView(false, card) //add dealers cards to the view
+        }
     }
+
     fun hit(v: View){
         Toast.makeText(this, "hit", Toast.LENGTH_SHORT).show()
-        addCardToView(true)
+        addCardToView(true, getCard())
     }
     fun stand(v: View){
         Toast.makeText(this, "stand", Toast.LENGTH_SHORT).show()
+
+        val hitButton = findViewById<Button>(R.id.hitBtn)
+        hitButton.isEnabled = false
+
+        //TODO: Function logic to control the dealer
     }
     fun doubleDown(v: View){
         Toast.makeText(this, "double down", Toast.LENGTH_SHORT).show()
-        addCardToView(true)
+        addCardToView(true, getCard())
 
         val hitButton = findViewById<Button>(R.id.hitBtn)
         hitButton.isEnabled = false
@@ -122,20 +147,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun textSizeUpdated(v: View){
         Toast.makeText(this, "text size updated", Toast.LENGTH_SHORT).show()
     }
-    private fun addCardToView(addToPlayer: Boolean){
-        val newCard = getCard()
+
+    private fun initializeHand(): MutableList<Card>{
+        val list: MutableList<Card> = mutableListOf()
+        list.add(deck.removeFirst()) //add the first card from the deck to the hand
+        list.add(deck.removeFirst()) //add the second card from the deck to the hand
+        return list //return the first two cards
+    }
+
+    private fun addCardToView(addToPlayer: Boolean, newCard: Card){
         //Log.i("info", newCard.getImageResource(this).toString())
         lateinit var cards:LinearLayout
         val image = ImageView(this)
         image.adjustViewBounds = true
 
         if(addToPlayer) {
+            playerHand.add(newCard)
             cards = findViewById<LinearLayout>(R.id.playerCards)
             //TODO make a method to determine what card?
             image.setImageResource(newCard.getImageResource(this))
         }
         else {
             cards = findViewById<LinearLayout>(R.id.dealerCards)
+            dealerHand.add(newCard)
             if(cards.childCount ==0){
                 image.setImageResource(R.drawable.back)
             }else{
