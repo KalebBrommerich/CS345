@@ -31,6 +31,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var deck: MutableList<Card>
     private lateinit var playerHand: MutableList<Card>
     private lateinit var dealerHand: MutableList<Card>
+    private var playerScore = 0
+    private var dealerScore = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -52,8 +54,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //            insets
 //        }
         if(savedInstanceState ==null){
-            supportFragmentManager.beginTransaction().replace(R.id.framelayout,Home()).commit()
-            navigationView.setCheckedItem(R.id.home)
+            supportFragmentManager.beginTransaction().replace(R.id.framelayout,Game()).commit()
+            navigationView.setCheckedItem(R.id.game)
         }
 
     }
@@ -103,10 +105,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //initialize the hands of the user and dealer
         Log.i("INFO", "making hands")
         playerHand = initializeHand()
+        findViewById<ImageView>(R.id.playerCard1).setImageResource(playerHand[0].getImageResource(this))
+        findViewById<ImageView>(R.id.playerCard2).setImageResource(playerHand[1].getImageResource(this))
+
         dealerHand = initializeHand()
+        findViewById<ImageView>(R.id.dealerCard2).setImageResource(dealerHand[1].getImageResource(this))
+
 
         for (card in playerHand) {
             Log.i("INFO", card.toString())
+            playerScore += card.getNumberValue()
+            Log.i("INFO", "player score = $playerScore")
             //below just doesn't work some how only when its uncommented
             //addCardToView(true, card) //add players cards to the view
         }
@@ -114,6 +123,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //TODO: make it so the first dealer card shows the back
         for (card in dealerHand) {
             Log.i("INFO", card.toString())
+            dealerScore += card.getNumberValue()
+            Log.i("INFO", "dealer score = $dealerScore")
             //below just doesn't work some how only when its uncommented
             //addCardToView(false, card) //add dealers cards to the view
         }
@@ -129,7 +140,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val hitButton = findViewById<Button>(R.id.hitBtn)
         hitButton.isEnabled = false
 
+        val doubleDownButton = findViewById<Button>(R.id.doubleDownBtn)
+        doubleDownButton.isEnabled = false
+
         //TODO: Function logic to control the dealer
+        addCardToView(false, getCard())
     }
     fun doubleDown(v: View){
         Toast.makeText(this, "double down", Toast.LENGTH_SHORT).show()
@@ -159,13 +174,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //Log.i("info", newCard.getImageResource(this).toString())
         lateinit var cards:LinearLayout
         val image = ImageView(this)
-        image.adjustViewBounds = true
 
         if(addToPlayer) {
             playerHand.add(newCard)
             cards = findViewById<LinearLayout>(R.id.playerCards)
             //TODO make a method to determine what card?
             image.setImageResource(newCard.getImageResource(this))
+            playerScore += newCard.getNumberValue()
+            Log.i("INFO", "player score = $playerScore")
         }
         else {
             cards = findViewById<LinearLayout>(R.id.dealerCards)
@@ -176,6 +192,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 //TODO make a method to determine what card?
                 image.setImageResource(newCard.getImageResource(this))
             }
+            dealerScore += newCard.getNumberValue()
+            Log.i("INFO", "dealer score = $dealerScore")
+
         }
         cards.addView(image)
         for (card in cards.children) {

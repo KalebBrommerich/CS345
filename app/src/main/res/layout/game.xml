@@ -11,7 +11,7 @@
         android:id="@+id/newGameAfterGameBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="startNewGame"
+        android:onClick="createNewGame"
         android:text="New Game"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -61,16 +61,47 @@
         android:layout_margin="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" >
+
+        <ImageView
+            android:id="@+id/playerCard1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/back" />
+
+        <ImageView
+            android:id="@+id/playerCard2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/back" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/dealerCards"
         android:layout_width="400dp"
-        android:layout_height="223dp"
+        android:layout_height="226dp"
         android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/newGameAfterGameBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/dealerCard1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/back" />
+
+        <ImageView
+            android:id="@+id/dealerCard2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/back" />
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
