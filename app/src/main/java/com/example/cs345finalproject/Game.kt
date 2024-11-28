@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 
 class Game: Fragment() {
@@ -14,5 +16,9 @@ class Game: Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.game,container,false)
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 }

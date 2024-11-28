@@ -19,6 +19,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.core.view.marginLeft
 import androidx.core.view.marginTop
 import androidx.drawerlayout.widget.DrawerLayout
@@ -93,10 +94,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun createNewGame(v: View){
         //TODO: when pressed takes you to the game.xml and starts a new game
+        playerScore = 0
+        dealerScore = 0
+
+
         Toast.makeText(this, "new game", Toast.LENGTH_SHORT).show()
         Log.i("INFO", "making fragment")
 
         supportFragmentManager.beginTransaction().replace(R.id.framelayout, Game()).commitNow()
+
+        findViewById<Button>(R.id.hitBtn).isVisible = true
+        findViewById<Button>(R.id.standBtn).isVisible = true
+        findViewById<Button>(R.id.doubleDownBtn).isVisible = true
+        findViewById<Button>(R.id.newGameAfterGameBtn).isVisible = false
 
         //create the shuffled deck
         Log.i("INFO", "making deck")
@@ -109,6 +119,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         findViewById<ImageView>(R.id.playerCard2).setImageResource(playerHand[1].getImageResource(this))
 
         dealerHand = initializeHand()
+        findViewById<ImageView>(R.id.dealerCard1).setImageResource(R.drawable.back)
         findViewById<ImageView>(R.id.dealerCard2).setImageResource(dealerHand[1].getImageResource(this))
 
 
@@ -144,7 +155,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         doubleDownButton.isEnabled = false
 
         //TODO: Function logic to control the dealer
-        addCardToView(false, getCard())
+        findViewById<ImageView>(R.id.dealerCard1).setImageResource(dealerHand[0].getImageResource(this))
+        while (dealerScore <17){
+            addCardToView(false, getCard())
+        }
+
+        //After game has finished
+        findViewById<Button>(R.id.hitBtn).isVisible = false
+        findViewById<Button>(R.id.standBtn).isVisible = false
+        findViewById<Button>(R.id.doubleDownBtn).isVisible = false
+        findViewById<Button>(R.id.newGameAfterGameBtn).isVisible = true
     }
     fun doubleDown(v: View){
         Toast.makeText(this, "double down", Toast.LENGTH_SHORT).show()

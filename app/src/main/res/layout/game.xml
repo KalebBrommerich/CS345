@@ -26,6 +26,7 @@
         android:layout_marginTop="68dp"
         android:onClick="hit"
         android:text="@string/hit"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/newGameAfterGameBtn" />
 
@@ -35,6 +36,7 @@
         android:layout_height="wrap_content"
         android:onClick="stand"
         android:text="@string/stand"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/doubleDownBtn"
         app:layout_constraintHorizontal_bias="0.633"
@@ -50,6 +52,7 @@
         android:layout_marginEnd="16dp"
         android:onClick="doubleDown"
         android:text="@string/doubleDown"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/newGameAfterGameBtn" />
 
