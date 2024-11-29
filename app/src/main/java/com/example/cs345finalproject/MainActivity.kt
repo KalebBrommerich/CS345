@@ -108,6 +108,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         findViewById<Button>(R.id.doubleDownBtn).isVisible = true
         findViewById<Button>(R.id.newGameAfterGameBtn).isVisible = false
 
+        //TODO: make deck and the hands reset if they have greater than 0 elements
         //create the shuffled deck
         Log.i("INFO", "making deck")
         deck = createDeck()
@@ -122,28 +123,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         findViewById<ImageView>(R.id.dealerCard1).setImageResource(R.drawable.back)
         findViewById<ImageView>(R.id.dealerCard2).setImageResource(dealerHand[1].getImageResource(this))
 
-
+        //initialize the player score
         for (card in playerHand) {
             Log.i("INFO", card.toString())
             playerScore += card.getNumberValue()
-            Log.i("INFO", "player score = $playerScore")
-            //below just doesn't work some how only when its uncommented
-            //addCardToView(true, card) //add players cards to the view
         }
+        Log.i("INFO", "initial player score = $playerScore")
 
-        //TODO: make it so the first dealer card shows the back
+        //initialize the dealer score
         for (card in dealerHand) {
             Log.i("INFO", card.toString())
             dealerScore += card.getNumberValue()
-            Log.i("INFO", "dealer score = $dealerScore")
-            //below just doesn't work some how only when its uncommented
-            //addCardToView(false, card) //add dealers cards to the view
         }
+        Log.i("INFO", "initial dealer score = $dealerScore")
+        //TODO: make function to check if blackjack (21 on 2 cards)
+
     }
 
     fun hit(v: View){
         Toast.makeText(this, "hit", Toast.LENGTH_SHORT).show()
         addCardToView(true, getCard())
+        //check if the player score is above 21 to disable the hit button
+        if (playerScore >= 21) {
+            val hitButton = findViewById<Button>(R.id.hitBtn)
+            hitButton.isEnabled = false
+        }
+
     }
     fun stand(v: View){
         Toast.makeText(this, "stand", Toast.LENGTH_SHORT).show()
@@ -156,23 +161,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         //TODO: Function logic to control the dealer
         findViewById<ImageView>(R.id.dealerCard1).setImageResource(dealerHand[0].getImageResource(this))
-        while (dealerScore <17){
+        while (dealerScore < 17){
             addCardToView(false, getCard())
         }
 
         //After game has finished
-        findViewById<Button>(R.id.hitBtn).isVisible = false
+        hitButton.isVisible = false
         findViewById<Button>(R.id.standBtn).isVisible = false
-        findViewById<Button>(R.id.doubleDownBtn).isVisible = false
+        doubleDownButton.isVisible = false
         findViewById<Button>(R.id.newGameAfterGameBtn).isVisible = true
     }
     fun doubleDown(v: View){
         Toast.makeText(this, "double down", Toast.LENGTH_SHORT).show()
         addCardToView(true, getCard())
 
+        //disable the hit button
         val hitButton = findViewById<Button>(R.id.hitBtn)
         hitButton.isEnabled = false
 
+        //disable the double down button
         val doubleDownButton = findViewById<Button>(R.id.doubleDownBtn)
         doubleDownButton.isEnabled = false
     }
@@ -191,30 +198,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun addCardToView(addToPlayer: Boolean, newCard: Card){
-        //Log.i("info", newCard.getImageResource(this).toString())
         lateinit var cards:LinearLayout
         val image = ImageView(this)
 
         if(addToPlayer) {
-            playerHand.add(newCard)
+            playerHand.add(newCard) //add card to the player hand
+            playerScore += newCard.getNumberValue() //update the players score
+            Log.i("INFO", "new player score = $playerScore")
             cards = findViewById<LinearLayout>(R.id.playerCards)
-            //TODO make a method to determine what card?
             image.setImageResource(newCard.getImageResource(this))
-            playerScore += newCard.getNumberValue()
-            Log.i("INFO", "player score = $playerScore")
         }
         else {
+            dealerHand.add(newCard) //add card to the dealer hand
+            dealerScore += newCard.getNumberValue() //update the dealers score
+            Log.i("INFO", "dealer score = $dealerScore")
             cards = findViewById<LinearLayout>(R.id.dealerCards)
-            dealerHand.add(newCard)
-            if(cards.childCount ==0){
+            if(cards.childCount == 0){
                 image.setImageResource(R.drawable.back)
             }else{
-                //TODO make a method to determine what card?
                 image.setImageResource(newCard.getImageResource(this))
             }
-            dealerScore += newCard.getNumberValue()
-            Log.i("INFO", "dealer score = $dealerScore")
-
         }
         cards.addView(image)
         for (card in cards.children) {
@@ -237,5 +240,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun getCard():Card {
         return deck.removeFirst()
+    }
+
+    //TODO: implement end game function: check who won and maybe update some text saying they won
+    private fun endGame() {
+
     }
 }
