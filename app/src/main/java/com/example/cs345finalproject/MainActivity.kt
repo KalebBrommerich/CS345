@@ -11,10 +11,9 @@ import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.core.view.children
 import androidx.core.view.isVisible
@@ -22,8 +21,9 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener  {
-    lateinit var drawerLayout: DrawerLayout
-    lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var navigationView: NavigationView
 
     private lateinit var deck: MutableList<Card>
     private lateinit var playerHand: MutableList<Card>
@@ -35,39 +35,38 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var dealerScore = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        drawerLayout = findViewById(R.id.DrawerLayout)
-        actionBarDrawerToggle = ActionBarDrawerToggle(this,drawerLayout, R.string.navOpen, R.string.navClose)
 
-        drawerLayout.addDrawerListener(actionBarDrawerToggle)
-        val navigationView: NavigationView = findViewById(R.id.navigationview)
-        actionBarDrawerToggle.syncState()
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        //setup the toolbar so it can have a textView
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        //find the drawerLayout and navigationView
+        drawerLayout = findViewById(R.id.DrawerLayout)
+        navigationView = findViewById(R.id.navigationview)
+
+        //setup the drawer
+        toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar, R.string.navOpen, R.string.navClose
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        //set the navigation view
         navigationView.setNavigationItemSelectedListener(this)
 
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-//            insets
-//        }
-        if(savedInstanceState ==null){
-            supportFragmentManager.beginTransaction().replace(R.id.framelayout,Game()).commit()
+        //load the default fragment
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction().replace(R.id.framelayout, Game()).commit()
             navigationView.setCheckedItem(R.id.game)
         }
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if(actionBarDrawerToggle.onOptionsItemSelected(item)){
-            true
-        }else{
-            super.onOptionsItemSelected(item)
-        }
-
+        return if (toggle.onOptionsItemSelected(item)) true else super.onOptionsItemSelected(item)
     }
+
     override fun onNavigationItemSelected(item: MenuItem):Boolean{
         when(item.itemId){
             R.id.home -> {
