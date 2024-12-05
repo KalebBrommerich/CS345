@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -29,10 +30,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var playerHand: MutableList<Card>
     private lateinit var dealerHand: MutableList<Card>
     private var casinoMode = false;
+    private var playerBet:Int? = 0
     private var playerAceCount = 0
     private var dealerAceCount = 0
     private var playerScore = 0
     private var dealerScore = 0
+    private var playerChips = 1000
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,63 +95,93 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    fun createNewGame(v: View){
-        //TODO: when pressed takes you to the game.xml and starts a new game
+    fun createNewGame(v: View) {
         playerScore = 0
         playerAceCount = 0
         dealerScore = 0
         dealerAceCount = 0
 
-        Toast.makeText(this, "new game", Toast.LENGTH_SHORT).show()
-        Log.i("INFO", "making fragment")
+        //initialize the dialog popup for the playerBet
+        val dialogBuilder = android.app.AlertDialog.Builder(this)
+        dialogBuilder.setTitle("Place Your Bet")
 
-        supportFragmentManager.beginTransaction().replace(R.id.framelayout, Game()).commitNow()
-
-        findViewById<Button>(R.id.hitBtn).isVisible = true
-        findViewById<Button>(R.id.standBtn).isVisible = true
-        findViewById<Button>(R.id.doubleDownBtn).isVisible = true
-        findViewById<Button>(R.id.newGameAfterGameBtn).isVisible = false
-
-        //TODO: make deck and the hands reset if they have greater than 0 elements
-        //create the shuffled deck
-        Log.i("INFO", "making deck")
-        deck = createDeck()
-
-        //initialize the hands of the user and dealer
-        Log.i("INFO", "making hands")
-        playerHand = initializeHand()
-        findViewById<ImageView>(R.id.playerCard1).setImageResource(playerHand[0].getImageResource(this))
-        findViewById<ImageView>(R.id.playerCard2).setImageResource(playerHand[1].getImageResource(this))
-
-        dealerHand = initializeHand()
-        findViewById<ImageView>(R.id.dealerCard1).setImageResource(R.drawable.back)
-        findViewById<ImageView>(R.id.dealerCard2).setImageResource(dealerHand[1].getImageResource(this))
-
-        //initialize the player score
-        for (card in playerHand) {
-            playerAceCount += if (card.isAce) 1 else 0 //increase the counter of Ace's in the player hand
-            playerScore += card.getNumberValue()
+        //setup the input field for the user
+        val inputField = android.widget.EditText(this).apply {
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+            hint = "Enter your bet"
         }
-        Log.i("INFO", "initial player score = $playerScore")
+        dialogBuilder.setView(inputField)
 
-        //initialize the dealer score
-        for (card in dealerHand) {
-            dealerAceCount += if (card.isAce) 1 else 0 //increase the counter of Ace's in the dealer hand
-            dealerScore += card.getNumberValue()
+        dialogBuilder.setPositiveButton("Confirm") { dialog, _ ->
+            val betInput = inputField.text.toString()
+            playerBet = betInput.toIntOrNull()
+
+            //validate the playerBet and proceed
+            if (playerBet != null && playerBet!! > 0 && playerBet!! <= playerChips) {
+                Toast.makeText(this, "Bet placed: $playerBet chips", Toast.LENGTH_SHORT).show()
+
+                //lower the player's chips after the bet was cast
+                playerChips -= playerBet!!
+
+                //update the chip counter to accurate display the total
+                updateChipCounter()
+
+                //set visibility for the buttons to allow the game to proceed
+                supportFragmentManager.beginTransaction().replace(R.id.framelayout, Game()).commitNow()
+                findViewById<Button>(R.id.hitBtn).isVisible = true
+                findViewById<Button>(R.id.standBtn).isVisible = true
+                findViewById<Button>(R.id.doubleDownBtn).isVisible = true
+                findViewById<Button>(R.id.doubleDownBtn).isEnabled = playerBet!! < playerChips
+                findViewById<Button>(R.id.newGameAfterGameBtn).isVisible = false
+
+                //create the shuffled deck
+                deck = createDeck()
+
+                //initialize the player hand
+                playerHand = initializeHand()
+                findViewById<ImageView>(R.id.playerCard1).setImageResource(playerHand[0].getImageResource(this))
+                findViewById<ImageView>(R.id.playerCard2).setImageResource(playerHand[1].getImageResource(this))
+
+                //initialize the dealer hand
+                dealerHand = initializeHand()
+                findViewById<ImageView>(R.id.dealerCard1).setImageResource(R.drawable.back)
+                findViewById<ImageView>(R.id.dealerCard2).setImageResource(dealerHand[1].getImageResource(this))
+
+                //initialize playerScore
+                for (card in playerHand) {
+                    playerAceCount += if (card.isAce) 1 else 0
+                    playerScore += card.getNumberValue()
+                }
+                //initialize dealerScore
+                for (card in dealerHand) {
+                    dealerAceCount += if (card.isAce) 1 else 0
+                    dealerScore += card.getNumberValue()
+                }
+
+                if (dealerScore == 21) {
+                    endGame()
+                }
+            } else {
+                Toast.makeText(this, "Invalid bet. Please enter a value less than or equal to your chips.", Toast.LENGTH_SHORT).show()
+                createNewGame(v) // Reopen the dialog for a valid input
+            }
+            dialog.dismiss()
         }
 
-        //TODO: display the card if they do have 21
-        //end game if dealer has 21 right away
-        if(dealerScore == 21){
-            endGame()
+        dialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.dismiss()
+            Toast.makeText(this, "Bet canceled. Game not started.", Toast.LENGTH_SHORT).show()
         }
-        Log.i("INFO", "initial dealer score = $dealerScore")
+
+        //show the dialog
+        dialogBuilder.create().show()
     }
 
     fun hit(v: View){
-        //Toast.makeText(this, "hit", Toast.LENGTH_SHORT).show()
+        //add a card to the player's hand
         addCardToView(true, getCard())
 
+        //disable the double down button after pressing hit
         val doubleDownButton = findViewById<Button>(R.id.doubleDownBtn)
         doubleDownButton.isEnabled = false
 
@@ -159,56 +192,42 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
     }
-    fun stand(v: View){
-        //Toast.makeText(this, "stand", Toast.LENGTH_SHORT).show()
 
+    fun stand(v: View){
+        //disable the hit button after the player stands
         val hitButton = findViewById<Button>(R.id.hitBtn)
         hitButton.isEnabled = false
 
+        //disable the double down button after the player stands
         val doubleDownButton = findViewById<Button>(R.id.doubleDownBtn)
         doubleDownButton.isEnabled = false
 
+        //display the dealers unturned card
+        findViewById<ImageView>(R.id.dealerCard1).setImageResource(dealerHand[0].getImageResource(this))
 
         //dealer gets cards if the player hasn't busted and dealer is below 17
-        if(casinoMode && reducePlayerAce()<=21){
+        if(casinoMode){
             //give the player a "realistic" game that happens in a casino
             if(reducePlayerAce() > reduceDealerAce()){
-                if(reduceDealerAce() >= 17){
-                    //dealer has 17 or more, adjust hidden card to "give the house and edge"
-                    while(reduceDealerAce() >= 17 && reduceDealerAce()+11 > reducePlayerAce()) {
-                        dealerScore -= dealerHand[0].getNumberValue()
-                        dealerHand[0] = getCard()
-                        dealerScore += dealerHand[0].getNumberValue()
-                    }
-                }
-                //dealer can still hit
-                while(reducePlayerAce()+1 > reduceDealerAce()||(reducePlayerAce() == 21 && reduceDealerAce()!=21) || reduceDealerAce() <= 17){
-                    try {
-                        val candidateCard = getCard()
-                        if(candidateCard.getNumberValue()+reduceDealerAce() > 21 ||
-                            (candidateCard.getNumberValue()+reduceDealerAce()<reducePlayerAce() &&
-                                    candidateCard.getNumberValue()+reduceDealerAce()>=17)){
-                            continue
-                        }
-                        addCardToView(false, candidateCard)
-                    }catch (e: NoSuchElementException){
-                        break;
-                    } //well let them have this one...
-                }
+             if(reduceDealerAce() >= 17){
+                 //dealer has 17 or more, adjust hidden card to "give the house and edge"
+                 dealerScore -= dealerHand[0].getNumberValue()
+                 dealerHand[0] = getCard()
+                 dealerScore += dealerHand[0].getNumberValue()
+             }else{
+                 //dealer can still hit,
 
-
+             }
             }//don't need to do anything
-
-        }else {
+        }else{
             //don't rig the game
-            while (reduceDealerAce() < 17 && reducePlayerAce() <= 21) {
+            while (reduceDealerAce() < 17 && reducePlayerAce() <= 21){
                 addCardToView(false, getCard())
             }
         }
-        findViewById<ImageView>(R.id.dealerCard1).setImageResource(dealerHand[0].getImageResource(this))
         endGame() //determines who won the game
 
-        //After game has finished
+        //adjust button visibility after game has finished
         hitButton.isVisible = false
         findViewById<Button>(R.id.standBtn).isVisible = false
         doubleDownButton.isVisible = false
@@ -216,7 +235,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun doubleDown(v: View){
-        Toast.makeText(this, "double down", Toast.LENGTH_SHORT).show()
+        //lower the player's chips
+        playerChips -= playerBet!!
+
+        //double the player's bet
+        playerBet = playerBet!! * 2
+
+        //update the chip counter after doubling down
+        updateChipCounter()
+
+        //add a card to the player's hand
         addCardToView(true, getCard())
 
         //disable the hit button
@@ -229,7 +257,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun casinoModeToggled(v: View){
-        Toast.makeText(this, "casino mode toggle", Toast.LENGTH_SHORT).show()
         casinoMode = findViewById<CheckBox>(R.id.casinoModeCheckbox).isChecked
     }
 
@@ -270,7 +297,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             playerHand.add(newCard) //add card to the player hand
             playerAceCount += if (newCard.isAce) 1 else 0 //increase the counter of Ace's in the player hand
             playerScore += newCard.getNumberValue() //update the players score
-            Log.i("INFO", "new player score = $playerScore")
             cards = findViewById<LinearLayout>(R.id.playerCards)
             image.setImageResource(newCard.getImageResource(this))
         }
@@ -278,7 +304,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             dealerHand.add(newCard) //add card to the dealer hand
             dealerAceCount += if (newCard.isAce) 1 else 0 //increase the counter of Ace's in the dealer hand
             dealerScore += newCard.getNumberValue() //update the dealers score
-            Log.i("INFO", "dealer score = $dealerScore")
             cards = findViewById<LinearLayout>(R.id.dealerCards)
             if(cards.childCount == 0){
                 image.setImageResource(R.drawable.back)
@@ -309,45 +334,55 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return deck.removeFirst()
     }
 
-    //TODO: implement end game function: check who won and maybe update some text saying they won
+    private fun updateChipCounter(){
+        val chipCounter = findViewById<TextView>(R.id.chip_counter)
+        chipCounter.text = "Chips: $playerChips"
+    }
+
     private fun endGame() {
         //both player and dealer have blackjack
         if(playerScore == 21 && dealerScore == 21){
-            Toast.makeText(this, "Pushed", Toast.LENGTH_LONG).show()
-            //raisePlayerChips(playerBet, true, true);
-            //return  "Pushed! " + playerBet + " has been returned";
+            playerChips += playerBet!!
+            Toast.makeText(this, "Pushed, $playerBet chips have been returned", Toast.LENGTH_LONG).show()
         } //player has blackjack and the dealer does not
-        else if(playerScore == 21 && dealerScore != 21) {
-            //raisePlayerChips(playerBet, true, false);
-            //return  "You have Blackjack! You won " + (playerBet + (playerBet*3)/2) + " chips";
-            Toast.makeText(this, "You have blackjack", Toast.LENGTH_LONG).show()
+        else if(playerScore == 21 && dealerScore != 21 && playerHand.size == 2) {
+            val playerWinnings = (playerBet?.plus((playerBet!! *3)/2)!!)
+            playerChips += playerWinnings
+            Toast.makeText(this, "You have blackjack! You won $playerWinnings chips", Toast.LENGTH_LONG).show()
         } //dealer has blackjack and the player does not
-        else if(dealerScore == 21 && playerScore != 21) {
+        else if(dealerScore == 21 && playerScore != 21 && dealerHand.size == 2) {
             Toast.makeText(this, "Dealer has blackjack. You Lost", Toast.LENGTH_LONG).show()
-            //return  ("Dealer has Blackjack! You lost " + playerBet + " chips");
-        } //player busts
+        }//player has 21 but not blackjack
+        else if(playerScore == 21 && dealerScore != 21) {
+            val playerWinnings = playerBet!! * 2
+            playerChips += playerWinnings
+            Toast.makeText(this, "You won $playerWinnings chips", Toast.LENGTH_LONG).show()
+        } //dealer has 21 and the player does not
+        else if(dealerScore == 21 && playerScore != 21) {
+            Toast.makeText(this, "Dealer has 21. You Lost", Toast.LENGTH_LONG).show()
+        }//player busts
         else if(playerScore > 21) {
             Toast.makeText(this, "You busted. You Lost", Toast.LENGTH_LONG).show()
-            //return  "You busted! You lost " + playerBet + " chips";
         } //dealer busts
         else if(dealerScore > 21) {
-            Toast.makeText(this, "Dealer busted. You Won", Toast.LENGTH_LONG).show()
-            //raisePlayerChips(playerBet, false, false);
-            //return  "Dealer busted! You won " + playerBet + " chips";
+            val playerWinnings = playerBet!! * 2
+            playerChips += playerWinnings
+            Toast.makeText(this, "Dealer busted. You Won $playerWinnings chips", Toast.LENGTH_LONG).show()
         }//player and dealer have the same sum
         else if(playerScore == dealerScore) {
-            Toast.makeText(this, "Pushed", Toast.LENGTH_LONG).show()
-            //raisePlayerChips(playerBet, false, true);
-            //return  "Pushed! " + playerBet + " has been returned";
+            playerChips += playerBet!!
+            Toast.makeText(this, "Pushed, $playerBet chips have been returned", Toast.LENGTH_LONG).show()
         } //player has a greater hand than the dealer
         else if(playerScore > dealerScore) {
-            Toast.makeText(this, "You won", Toast.LENGTH_LONG).show()
-            //raisePlayerChips(playerBet, false, false);
-            //return  "You won " +  playerBet + " chips";
+            val playerWinnings = playerBet!! * 2
+            playerChips += playerWinnings
+            Toast.makeText(this, "You Won $playerWinnings chips", Toast.LENGTH_LONG).show()
         } //dealer has a greater hand than the dealer
         else if(dealerScore > playerScore) {
             Toast.makeText(this, "You Lost", Toast.LENGTH_LONG).show()
-            //return  "You lost " + playerBet + " chips";
         }
+
+        //update the chip counter after the game was determined
+        updateChipCounter()
     }
 }
