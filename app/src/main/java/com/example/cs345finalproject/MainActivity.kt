@@ -87,7 +87,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 findViewById<CheckBox>(R.id.casinoModeCheckbox).isChecked = casinoMode
             }
             R.id.addMoreChips -> {
-                //Intent for google play store?
+                //give the player chips if they have none
+                if(playerChips <= 0) {
+                    playerChips += 1000
+                    updateChipCounter()
+                }
+                //intent for google play store
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/")))
             }
         }
@@ -96,6 +101,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun createNewGame(v: View) {
+        //make the player get chips if they have none
+        if (playerChips <= 0) {
+            Toast.makeText(this, "You need to add chips to play.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         playerScore = 0
         playerAceCount = 0
         dealerScore = 0
@@ -159,7 +170,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
 
                 if (dealerScore == 21) {
-                    endGame()
+                    stand(v)
                 }
             } else {
                 Toast.makeText(this, "Invalid bet. Please enter a value less than or equal to your chips.", Toast.LENGTH_SHORT).show()
