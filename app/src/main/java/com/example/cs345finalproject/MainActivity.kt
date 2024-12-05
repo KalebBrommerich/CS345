@@ -168,28 +168,44 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val doubleDownButton = findViewById<Button>(R.id.doubleDownBtn)
         doubleDownButton.isEnabled = false
 
-        findViewById<ImageView>(R.id.dealerCard1).setImageResource(dealerHand[0].getImageResource(this))
 
         //dealer gets cards if the player hasn't busted and dealer is below 17
-        if(casinoMode){
+        if(casinoMode && reducePlayerAce()<=21){
             //give the player a "realistic" game that happens in a casino
             if(reducePlayerAce() > reduceDealerAce()){
-             if(reduceDealerAce() >= 17){
-                 //dealer has 17 or more, adjust hidden card to "give the house and edge"
-                 dealerScore -= dealerHand[0].getNumberValue()
-                 dealerHand[0] = getCard()
-                 dealerScore += dealerHand[0].getNumberValue()
-             }else{
-                 //dealer can still hit,
+                if(reduceDealerAce() >= 17){
+                    //dealer has 17 or more, adjust hidden card to "give the house and edge"
+                    while(reduceDealerAce() >= 17 && reduceDealerAce()+11 > reducePlayerAce()) {
+                        dealerScore -= dealerHand[0].getNumberValue()
+                        dealerHand[0] = getCard()
+                        dealerScore += dealerHand[0].getNumberValue()
+                    }
+                }
+                //dealer can still hit
+                while(reducePlayerAce()+1 > reduceDealerAce()||(reducePlayerAce() == 21 && reduceDealerAce()!=21) || reduceDealerAce() <= 17){
+                    try {
+                        val candidateCard = getCard()
+                        if(candidateCard.getNumberValue()+reduceDealerAce() > 21 ||
+                            (candidateCard.getNumberValue()+reduceDealerAce()<reducePlayerAce() &&
+                                    candidateCard.getNumberValue()+reduceDealerAce()>=17)){
+                            continue
+                        }
+                        addCardToView(false, candidateCard)
+                    }catch (e: NoSuchElementException){
+                        break;
+                    } //well let them have this one...
+                }
 
-             }
+
             }//don't need to do anything
-        }else{
+
+        }else {
             //don't rig the game
-            while (reduceDealerAce() < 17 && reducePlayerAce() <= 21){
+            while (reduceDealerAce() < 17 && reducePlayerAce() <= 21) {
                 addCardToView(false, getCard())
             }
         }
+        findViewById<ImageView>(R.id.dealerCard1).setImageResource(dealerHand[0].getImageResource(this))
         endGame() //determines who won the game
 
         //After game has finished
