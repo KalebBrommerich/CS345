@@ -17,8 +17,4 @@ class Game: Fragment() {
         val view = inflater.inflate(R.layout.game,container,false)
         return view
     }
-
-    override fun onResume() {
-        super.onResume()
-    }
 }

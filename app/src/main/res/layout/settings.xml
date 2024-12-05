@@ -7,17 +7,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textSizeTextBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:text="@string/textSize"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/casinoModeCheckbox" />
-
     <CheckBox
         android:id="@+id/casinoModeCheckbox"
         android:layout_width="wrap_content"
@@ -31,40 +20,4 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.247" />
 
-    <RadioGroup
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textSizeTextBox"
-        app:layout_constraintVertical_bias="0.111">
-
-        <RadioButton
-            android:id="@+id/smallText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="textSizeUpdated"
-            android:text="@string/small"
-            tools:layout_editor_absoluteX="83dp"
-            tools:layout_editor_absoluteY="581dp" />
-
-        <RadioButton
-            android:id="@+id/mediumText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="textSizeUpdated"
-            android:text="@string/medium"
-            tools:layout_editor_absoluteX="83dp"
-            tools:layout_editor_absoluteY="581dp" />
-
-        <RadioButton
-            android:id="@+id/largeText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="textSizeUpdated"
-            android:text="@string/large"
-            tools:layout_editor_absoluteX="83dp"
-            tools:layout_editor_absoluteY="581dp" />
-    </RadioGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>

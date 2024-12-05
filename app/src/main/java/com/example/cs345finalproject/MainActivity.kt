@@ -1,16 +1,20 @@
 package com.example.cs345finalproject
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GravityCompat
 import androidx.core.view.children
 import androidx.core.view.isVisible
@@ -24,6 +28,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var deck: MutableList<Card>
     private lateinit var playerHand: MutableList<Card>
     private lateinit var dealerHand: MutableList<Card>
+    private var casinoMode = false;
     private var playerAceCount = 0
     private var dealerAceCount = 0
     private var playerScore = 0
@@ -72,14 +77,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 supportFragmentManager.beginTransaction().replace(R.id.framelayout,HowToPlay()).commit()
             }
             R.id.game -> {
-                supportFragmentManager.beginTransaction().replace(R.id.framelayout,Game()).commit()
+                supportFragmentManager.beginTransaction().replace(R.id.framelayout,Game()).commitNow()
+                //make a way to restore the game if nav away? viewmodel?
             }
             R.id.settings -> {
-                supportFragmentManager.beginTransaction().replace(R.id.framelayout,Settings()).commit()
+                supportFragmentManager.beginTransaction().replace(R.id.framelayout,Settings()).commitNow()
+                findViewById<CheckBox>(R.id.casinoModeCheckbox).isChecked = casinoMode
             }
             R.id.addMoreChips -> {
                 //Intent for google play store?
-
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/")))
             }
         }
         drawerLayout.closeDrawer(GravityCompat.START)
@@ -165,10 +172,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         findViewById<ImageView>(R.id.dealerCard1).setImageResource(dealerHand[0].getImageResource(this))
 
         //dealer gets cards if the player hasn't busted and dealer is below 17
-        while (reduceDealerAce() < 17 && reducePlayerAce() <= 21){
-            addCardToView(false, getCard())
-        }
+        if(casinoMode){
+            //give the player a "realistic" game that happens in a casino
+            if(reducePlayerAce() > reduceDealerAce()){
+             if(reduceDealerAce() >= 17){
+                 //dealer has 17 or more, adjust hidden card to "give the house and edge"
+                 dealerScore -= dealerHand[0].getNumberValue()
+                 dealerHand[0] = getCard()
+                 dealerScore += dealerHand[0].getNumberValue()
+             }else{
+                 //dealer can still hit,
 
+             }
+            }//don't need to do anything
+        }else{
+            //don't rig the game
+            while (reduceDealerAce() < 17 && reducePlayerAce() <= 21){
+                addCardToView(false, getCard())
+            }
+        }
         endGame() //determines who won the game
 
         //After game has finished
@@ -193,6 +215,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun casinoModeToggled(v: View){
         Toast.makeText(this, "casino mode toggle", Toast.LENGTH_SHORT).show()
+        casinoMode = findViewById<CheckBox>(R.id.casinoModeCheckbox).isChecked
     }
 
     fun textSizeUpdated(v: View){
