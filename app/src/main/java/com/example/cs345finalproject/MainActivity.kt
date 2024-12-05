@@ -3,7 +3,6 @@ package com.example.cs345finalproject
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
@@ -30,7 +29,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var playerHand: MutableList<Card>
     private lateinit var dealerHand: MutableList<Card>
     private var casinoMode = false;
-    private var playerBet:Int? = 0
+    private var playerBet = 0
     private var playerAceCount = 0
     private var dealerAceCount = 0
     private var playerScore = 0
@@ -125,14 +124,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         dialogBuilder.setPositiveButton("Confirm") { dialog, _ ->
             val betInput = inputField.text.toString()
-            playerBet = betInput.toIntOrNull()
+            playerBet = betInput.toInt()
 
             //validate the playerBet and proceed
-            if (playerBet != null && playerBet!! > 0 && playerBet!! <= playerChips) {
+            if (playerBet in 1..playerChips && (playerBet % 10 == 0 || playerBet % 25 == 0)) {
                 Toast.makeText(this, "Bet placed: $playerBet chips", Toast.LENGTH_SHORT).show()
 
                 //lower the player's chips after the bet was cast
-                playerChips -= playerBet!!
+                playerChips -= playerBet
 
                 //update the chip counter to accurate display the total
                 updateChipCounter()
@@ -173,8 +172,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     stand(v)
                 }
             } else {
-                Toast.makeText(this, "Invalid bet. Please enter a value less than or equal to your chips.", Toast.LENGTH_SHORT).show()
-                createNewGame(v) // Reopen the dialog for a valid input
+                Toast.makeText(this, "Invalid bet. Please enter a value less than or equal to your chips and a multiple of 10 or 25.", Toast.LENGTH_SHORT).show()
+                createNewGame(v) //reopen the dialog for a valid input
             }
             dialog.dismiss()
         }
